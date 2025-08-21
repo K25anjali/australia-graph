@@ -1,3 +1,4 @@
+// Define color mapping
 const COLORS = {
     // Variable
     'Electricity': '#000000',
