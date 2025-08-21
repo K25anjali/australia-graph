@@ -34,7 +34,7 @@ export const data = [
   { year: 2022, historical: 422.63, co2: 384.36, ch4: 96.85, n2o: 18.79, fGases: 12.09, electricity: 157.71, highAmbition: null, ndcTarget: null, netZero: null, uncertaintyLower: null, uncertaintyUpper: null },
   { year: 2023, historical: 436.36, co2: 382.34, ch4: 99.23, n2o: 18.89, fGases: 12.44, electricity: 151.93, highAmbition: null, ndcTarget: null, netZero: null, uncertaintyLower: null, uncertaintyUpper: null },
   { year: 2024, historical: null, co2: null, ch4: null, n2o: null, fGases: null, electricity: 154.39, highAmbition: null, ndcTarget: null, netZero: null, uncertaintyLower: null, uncertaintyUpper: null },
-  { year: 2025, historical: null, co2: null, ch4: null, n2o: null, fGases: null, electricity: null, highAmbition: 454.75, ndcTarget: null, netZero: null, uncertaintyLower: 442.33, uncertaintyUpper: 467.18 },
+  { year: 2025, historical: null, co2: null, ch4: null, n2o: null, fGases: null, electricity: null, highAmbition: 454.75, ndcTarget: null, netZero: null, uncertaintyLower: 454.33, uncertaintyUpper: 454.18 },
   { year: 2030, historical: null, co2: null, ch4: null, n2o: null, fGases: null, electricity: null, highAmbition: 265.51, ndcTarget: 340.23, netZero: null, uncertaintyLower: 253.09, uncertaintyUpper: 277.93 },
   { year: 2035, historical: null, co2: null, ch4: null, n2o: null, fGases: null, electricity: null, highAmbition: 174.34, ndcTarget: null, netZero: null, uncertaintyLower: 161.92, uncertaintyUpper: 186.76 },
   { year: 2040, historical: null, co2: null, ch4: null, n2o: null, fGases: null, electricity: null, highAmbition: 80.92, ndcTarget: null, netZero: null, uncertaintyLower: 68.50, uncertaintyUpper: 93.34 },

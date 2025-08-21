@@ -121,6 +121,23 @@ const App = () => {
               name="F-Gases"
             />
 
+            {/* Updated uncertainty area with solid fill */}
+            <Area
+              type="monotone"
+              dataKey="uncertaintyLower"
+              stroke="none"
+              fill="transparent"
+              stackId="1"
+            />
+            <Area
+              type="monotone"
+              dataKey={(d) => d.uncertaintyUpper - d.uncertaintyLower}
+              stroke="none"
+              fill="#add8e6"
+              stackId="1"
+              name="Uncertainty Range"
+            />
+
             <Line
               type="monotone"
               dataKey="highAmbition"
