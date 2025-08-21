@@ -25,11 +25,14 @@ const COLORS = {
 const LINE_STYLES = {
     'Electricity': '1 1',
     'High Ambition': 'none',
-    'Historical': 'none'
+    'Historical': 'none',
+    'Total GHG (Historical)': 'none',
 };
+
 const TARGET_ITEMS = ['NDC Target', 'Net-Zero Year'];
 const UNCERTAINTY_ITEMS = ['High Ambition'];
 const SCENARIO_ITEMS = ['High Ambition', 'Historical'];
+const GHG_LINE_ITEMS = ['Total GHG (Historical)'];
 
 const CustomLegend = () => {
     // Group items by category in the correct order
@@ -42,7 +45,7 @@ const CustomLegend = () => {
     };
 
     return (
-        <div className=" p-8 space-y-6 w-64 flex flex-col text-gray-800 justify-center">
+        <div className="p-8 space-y-6 w-64 flex flex-col text-gray-800 justify-center">
             {Object.entries(categories).map(([category, items]) => (
                 <div key={category}>
                     <div className="font-medium mb-2 text-xs uppercase tracking-wide">
@@ -68,8 +71,8 @@ const CustomLegend = () => {
                                             clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)'
                                         }}
                                     />
-                                ) : category === 'Scenarios' && SCENARIO_ITEMS.includes(item) ? (
-                                    // For scenarios (line shape)
+                                ) : (category === 'Scenarios' && SCENARIO_ITEMS.includes(item)) || GHG_LINE_ITEMS.includes(item) ? (
+                                    // For scenarios and GHG (line shape)
                                     <div
                                         className="w-4 h-0.5 mr-2"
                                         style={{
@@ -81,8 +84,7 @@ const CustomLegend = () => {
                                     <div
                                         className="w-3 h-3 mr-2"
                                         style={{
-                                            backgroundColor: COLORS[item],
-                                            borderRadius: UNCERTAINTY_ITEMS.includes(item) ? '0' : '0'
+                                            backgroundColor: COLORS[item]
                                         }}
                                     />
                                 )}
