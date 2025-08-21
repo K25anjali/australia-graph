@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Line,
   Area,
@@ -14,9 +14,12 @@ import { data } from './data';
 import CustomLegend from './CustomLegend';
 
 const App = () => {
+  const [isTooltipActive, setIsTooltipActive] = useState(false);
+  const chartRef = useRef(null);
 
+  // Custom Tooltip Component
   const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
+    if (active && payload && payload.length && isTooltipActive) {
       return (
         <div className="bg-white p-2 border border-gray-300 rounded shadow-md">
           <p className="font-medium">{`Year: ${label}`}</p>
@@ -31,6 +34,7 @@ const App = () => {
     return null;
   };
 
+  // Custom Dot Component
   const CustomizedDot = (props) => {
     const { cx, cy, fill, strokeWidth = 1 } = props;
     return (
@@ -44,11 +48,32 @@ const App = () => {
     );
   };
 
+  // Handle clicks/taps outside the chart
+  const handleOutsideClick = (event) => {
+    if (chartRef.current && !chartRef.current.contains(event.target)) {
+      setIsTooltipActive(false);
+    }
+  };
+
+  // Handle chart interaction to show tooltip
+  const handleChartInteraction = () => {
+    setIsTooltipActive(true);
+  };
+
   return (
-    <div className="max-w-6xl mx-auto h-screen max-md:h-auto px-4">
-      <h1 className='md:pt-12 pt-12 mb-6'>Emissions - Australia</h1>
+    <div
+      className="max-w-6xl mx-auto h-screen max-md:h-auto px-4"
+      onClick={handleOutsideClick}
+      onTouchStart={handleOutsideClick} // For mobile touch events
+    >
+      <h1 className="md:pt-12 pt-12 mb-6">Emissions - Australia</h1>
       <div className="w-full h-full pb-28 flex md:flex-row flex-col">
-        <div className="w-full md:h-full h-[50vh] max-md:overflow-x-auto">
+        <div
+          className="w-full md:h-full h-[50vh] max-md:overflow-x-auto"
+          ref={chartRef}
+          onMouseMove={handleChartInteraction} // Show tooltip on mouse move
+          onTouchStart={handleChartInteraction} // Show tooltip on touch
+        >
           <div className="w-full max-md:min-w-[500px] h-full">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
@@ -85,7 +110,7 @@ const App = () => {
                 />
                 <Tooltip content={<CustomTooltip />} />
 
-                {/* Area components with no opacity */}
+                {/* Area components */}
                 <Area
                   type="monotone"
                   dataKey="co2"
@@ -123,7 +148,7 @@ const App = () => {
                   name="F-Gases"
                 />
 
-                {/* Updated uncertainty area with solid fill */}
+                {/* Uncertainty area */}
                 <Area
                   type="monotone"
                   dataKey="uncertaintyLower"
@@ -140,6 +165,7 @@ const App = () => {
                   name="Uncertainty Range"
                 />
 
+                {/* Line components */}
                 <Line
                   type="monotone"
                   dataKey="highAmbition"
@@ -166,7 +192,6 @@ const App = () => {
                   dot={false}
                   name="Electricity"
                 />
-
                 <Line
                   type="monotone"
                   dataKey="ndcTarget"
@@ -183,7 +208,6 @@ const App = () => {
                   activeDot={<CustomizedDot fill="#ff0000" stroke="#000000" strokeWidth={2} />}
                   name="Net-Zero Year"
                 />
-
               </ComposedChart>
             </ResponsiveContainer>
           </div>
