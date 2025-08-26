@@ -1,11 +1,11 @@
 // Define color mapping
 const COLORS = {
     // Variable
-    'Electricity': '#000000',
-    'Total GHG (Historical)': '#000000',
+    'Electricity CO₂': '#000000',
+    'Total GHG': '#000000',
 
     // Scenarios
-    'High Ambition': '#add8e6',
+    'High Ambition': '#99cdc2',
     'Historical': '#000000',
 
     // Targets
@@ -19,25 +19,24 @@ const COLORS = {
     'F-Gases': '#f8d623',
 
     // Uncertainty
-    'High Ambition': '#add8e6'
+    'High Ambition': '#4682b4'
 };
 
 const LINE_STYLES = {
-    'Electricity': '1 1',
+    'Electricity CO₂': '1 1',
     'High Ambition': 'none',
     'Historical': 'none',
-    'Total GHG (Historical)': 'none',
+    'Total GHG': 'none',
 };
 
 const TARGET_ITEMS = ['NDC Target', 'Net-Zero Year'];
-const UNCERTAINTY_ITEMS = ['High Ambition'];
 const SCENARIO_ITEMS = ['High Ambition', 'Historical'];
-const GHG_LINE_ITEMS = ['Total GHG (Historical)'];
+const GHG_LINE_ITEMS = ['Total GHG'];
 
 const CustomLegend = () => {
     // Group items by category in the correct order
     const categories = {
-        'Variable': ['Electricity', 'Total GHG (Historical)'],
+        'Variable': ['Electricity CO₂', 'Total GHG'],
         'Scenarios': ['High Ambition', 'Historical'],
         'Targets': ['NDC Target', 'Net-Zero Year'],
         'Uncertainty Range': ['High Ambition'],
@@ -55,7 +54,7 @@ const CustomLegend = () => {
                         {items.map(item => (
                             <div key={item} className="flex items-center text-xs">
                                 {LINE_STYLES[item] === '1 1' ? (
-                                    // For dashed lines (Electricity)
+                                    // For dashed lines (Electricity CO₂)
                                     <div
                                         className="w-4 h-0.5 mr-2"
                                         style={{

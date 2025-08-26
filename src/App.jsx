@@ -6,7 +6,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   ComposedChart,
 } from 'recharts';
@@ -16,18 +15,82 @@ import CustomLegend from './CustomLegend';
 const App = () => {
   const [isTooltipActive, setIsTooltipActive] = useState(false);
   const chartRef = useRef(null);
+  const COLORS = {
+    // Variable
+    'Electricity': '#000000',
+    'Total GHG': '#000000',
+
+    // Scenarios
+    'High Ambition': '#99cdc2',
+    'Historical': '#000000',
+
+    // Targets
+    'NDC Target': '#9370db',
+    'Net-Zero Year': '#ff0000',
+
+    // Gases
+    'CO₂ (FFI)': '#dbdfc6',
+    'CH₄': '#62b947',
+    'N₂O': '#a05da4',
+    'F-Gases': '#f8d623',
+
+    // Uncertainty
+    'High Ambition': '#4682b4'
+  };
 
   // Custom Tooltip Component
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length && isTooltipActive) {
+      // Filter out null/undefined values and sort by category
+      const validPayload = payload.filter(entry => entry.value !== null && entry.value !== undefined);
+
+      // Group entries by category
+      const categories = {
+        'Variable': ['Electricity', 'Total GHG'],
+        'Scenarios': ['High Ambition', 'Historical'],
+        'Targets': ['NDC Target', 'Net-Zero Year'],
+        'Gases': ['CO₂ (FFI)', 'CH₄', 'N₂O', 'F-Gases'],
+        'Uncertainty Range': ['Uncertainty Range'],
+      };
+
+      // Get uncertainty range values
+      const uncertaintyEntry = validPayload.find(entry => entry.name === 'Uncertainty Range');
+      const uncertaintyLower = data.find(d => d.year === label)?.uncertaintyLower;
+      const uncertaintyUpper = data.find(d => d.year === label)?.uncertaintyUpper;
+      const showUncertainty = label >= 2010 && uncertaintyLower !== null && uncertaintyUpper !== null;
+
       return (
-        <div className="bg-white p-2 border border-gray-300 rounded shadow-md">
-          <p className="font-medium">{`Year: ${label}`}</p>
-          {payload.map((entry, index) => (
-            <p key={`item-${index}`} style={{ color: entry.color }}>
-              {`${entry.name}: ${entry.value ? entry.value.toFixed(2) : 'N/A'} Mt CO₂eq/yr`}
-            </p>
-          ))}
+        <div className="bg-white p-4 border border-gray-300 rounded shadow-md max-w-xs">
+          <p className="font-medium mb-2">{`Year: ${label}`}</p>
+          {Object.entries(categories).map(([category, items]) => {
+            const validItems = validPayload.filter(entry =>
+              items.includes(entry.name) &&
+              (entry.name !== 'Uncertainty Range' || showUncertainty)
+            );
+            if (validItems.length === 0) return null;
+
+            return (
+              <div key={category} className="mb-2">
+                <p className="font-medium text-xs uppercase tracking-wide text-gray-900">
+                  {category}
+                </p>
+                {validItems.map((entry, index) => (
+                  <p
+                    key={`item-${index}`}
+                    style={{
+                      color: COLORS[entry.name] || '#4682b4',
+                      // fontWeight: entry.name === 'Uncertainty Range' ? 'bold' : 'normal'
+                    }}
+                  >
+                    {entry.name === 'Uncertainty Range'
+                      ? `High Ambition: ${uncertaintyLower?.toFixed(2)} - ${uncertaintyUpper?.toFixed(2)} Mt CO₂eq/yr`
+                      : `${entry.name}: ${entry.value.toFixed(2)} Mt CO₂eq/yr`
+                    }
+                  </p>
+                ))}
+              </div>
+            );
+          })}
         </div>
       );
     }
@@ -66,8 +129,7 @@ const App = () => {
       onClick={handleOutsideClick}
       onTouchStart={handleOutsideClick} // For mobile touch events
     >
-      <h1 className="md:pt-12 pt-12 mb-6">Emissions - Australia</h1>
-      <div className="w-full h-full pb-28 flex md:flex-row flex-col">
+      <div className="w-full h-full py-28 flex md:flex-row flex-col">
         <div
           className="w-full md:h-full h-[50vh] max-md:overflow-x-auto"
           ref={chartRef}
@@ -166,22 +228,23 @@ const App = () => {
                 />
 
                 {/* Line components */}
-                <Line
-                  type="monotone"
-                  dataKey="highAmbition"
-                  stroke="#add8e6"
-                  strokeWidth={2}
-                  dot={false}
-                  connectNulls={true}
-                  name="High Ambition"
-                />
+
                 <Line
                   type="monotone"
                   dataKey="historical"
                   stroke="#000000"
                   strokeWidth={2}
                   dot={false}
-                  name="Total GHG (Historical)"
+                  name="Total GHG"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="highAmbition"
+                  stroke="#99cdc2"
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls={true}
+                  name="High Ambition"
                 />
                 <Line
                   type="monotone"
