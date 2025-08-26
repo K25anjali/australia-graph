@@ -81,7 +81,7 @@ const App = () => {
                     }}
                   >
                     {entry.name === 'Uncertainty Range'
-                      ? `High Ambition: ${uncertaintyLower} - ${uncertaintyUpper} Mt CO₂eq/yr`
+                      ? `High Ambition: ${uncertaintyUpper} - ${uncertaintyLower} Mt CO₂eq/yr`
                       : `${entry.name}: ${entry.value} Mt CO₂eq/yr`
                     }
                   </p>
