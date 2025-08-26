@@ -41,7 +41,7 @@ const App = () => {
   // Custom Tooltip Component
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length && isTooltipActive) {
-      // Filter out null/undefined values and sort by category
+
       const validPayload = payload.filter(entry => entry.value !== null && entry.value !== undefined);
 
       // Group entries by category
@@ -54,7 +54,6 @@ const App = () => {
       };
 
       // Get uncertainty range values
-      const uncertaintyEntry = validPayload.find(entry => entry.name === 'Uncertainty Range');
       const uncertaintyLower = data.find(d => d.year === label)?.uncertaintyLower;
       const uncertaintyUpper = data.find(d => d.year === label)?.uncertaintyUpper;
       const showUncertainty = label >= 2010 && uncertaintyLower !== null && uncertaintyUpper !== null;
@@ -79,12 +78,11 @@ const App = () => {
                     key={`item-${index}`}
                     style={{
                       color: COLORS[entry.name] || '#4682b4',
-                      // fontWeight: entry.name === 'Uncertainty Range' ? 'bold' : 'normal'
                     }}
                   >
                     {entry.name === 'Uncertainty Range'
-                      ? `High Ambition: ${uncertaintyLower?.toFixed(2)} - ${uncertaintyUpper?.toFixed(2)} Mt CO₂eq/yr`
-                      : `${entry.name}: ${entry.value.toFixed(2)} Mt CO₂eq/yr`
+                      ? `High Ambition: ${uncertaintyLower} - ${uncertaintyUpper} Mt CO₂eq/yr`
+                      : `${entry.name}: ${entry.value} Mt CO₂eq/yr`
                     }
                   </p>
                 ))}
@@ -213,22 +211,29 @@ const App = () => {
                 {/* Uncertainty area */}
                 <Area
                   type="monotone"
+                  dataKey="uncertaintyUpper"
+                  stroke="none"
+                  fill="#add8e6"
+                  stackId="1"
+                  name="Uncertainty Range"
+                />
+                <Area
+                  type="monotone"
                   dataKey="uncertaintyLower"
                   stroke="none"
                   fill="transparent"
                   stackId="1"
                 />
-                <Area
+                {/* <Area
                   type="monotone"
                   dataKey={(d) => d.uncertaintyUpper - d.uncertaintyLower}
                   stroke="none"
                   fill="#add8e6"
                   stackId="1"
                   name="Uncertainty Range"
-                />
+                /> */}
 
                 {/* Line components */}
-
                 <Line
                   type="monotone"
                   dataKey="historical"
