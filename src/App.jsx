@@ -11,81 +11,69 @@ import {
 } from 'recharts';
 import { data } from './data';
 import CustomLegend from './CustomLegend';
-
+import { LEGEND_ITEMS } from './Utils';
 const App = () => {
   const [isTooltipActive, setIsTooltipActive] = useState(false);
   const chartRef = useRef(null);
-  const COLORS = {
-    // Variable
-    'Electricity': '#000000',
-    'Total GHG': '#000000',
 
-    // Scenarios
-    'High Ambition': '#99cdc2',
-    'Historical': '#000000',
-
-    // Targets
-    'NDC Target': '#9370db',
-    'Net-Zero Year': '#ff0000',
-
-    // Gases
-    'CO₂ (FFI)': '#dbdfc6',
-    'CH₄': '#62b947',
-    'N₂O': '#a05da4',
-    'F-Gases': '#f8d623',
-
-    // Uncertainty
-    'High Ambition': '#4682b4'
-  };
-
-  // Custom Tooltip Component
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length && isTooltipActive) {
+      const validPayload = payload.filter(
+        (entry) => entry.value !== null && entry.value !== undefined
+      );
 
-      const validPayload = payload.filter(entry => entry.value !== null && entry.value !== undefined);
+      const uncertaintyLower = data.find((d) => d.year === label)?.uncertaintyLower;
+      const uncertaintyUpper = data.find((d) => d.year === label)?.uncertaintyUpper;
+      const showUncertainty =
+        label >= 2010 &&
+        uncertaintyLower !== null &&
+        uncertaintyUpper !== null;
 
-      // Group entries by category
-      const categories = {
-        'Variable': ['Electricity', 'Total GHG'],
-        'Scenarios': ['High Ambition', 'Historical'],
-        'Targets': ['NDC Target', 'Net-Zero Year'],
-        'Gases': ['CO₂ (FFI)', 'CH₄', 'N₂O', 'F-Gases'],
-        'Uncertainty Range': ['Uncertainty Range'],
-      };
+      const payloadMap = Object.fromEntries(validPayload.map((p) => [p.name, p.value]));
 
-      // Get uncertainty range values
-      const uncertaintyLower = data.find(d => d.year === label)?.uncertaintyLower;
-      const uncertaintyUpper = data.find(d => d.year === label)?.uncertaintyUpper;
-      const showUncertainty = label >= 2010 && uncertaintyLower !== null && uncertaintyUpper !== null;
+      const groupedItems = LEGEND_ITEMS.reduce((acc, item) => {
+        if (!acc[item.category]) acc[item.category] = [];
+        acc[item.category].push(item);
+        return acc;
+      }, {});
 
       return (
         <div className="bg-white p-4 border border-gray-300 rounded shadow-md max-w-xs">
           <p className="font-medium mb-2">{`Year: ${label}`}</p>
-          {Object.entries(categories).map(([category, items]) => {
-            const validItems = validPayload.filter(entry =>
-              items.includes(entry.name) &&
-              (entry.name !== 'Uncertainty Range' || showUncertainty)
-            );
-            if (validItems.length === 0) return null;
+          {Object.entries(groupedItems).map(([category, items], catIndex) => {
+            // Filter items in this category that actually have values to show
+            const visibleItems = items.filter((item) => {
+              if (item.name === "Upper Uncertainty" && showUncertainty) return true;
+              if (item.name === "Lower Uncertainty" && showUncertainty) return true;
+              return payloadMap[item.name] !== undefined;
+            });
+
+            if (visibleItems.length === 0) return null; // ⬅️ don't render empty categories
 
             return (
-              <div key={category} className="mb-2">
-                <p className="font-medium text-xs uppercase tracking-wide text-gray-900">
-                  {category}
-                </p>
-                {validItems.map((entry, index) => (
-                  <p
-                    key={`item-${index}`}
-                    style={{
-                      color: COLORS[entry.name] || '#4682b4',
-                    }}
-                  >
-                    {entry.name === 'Uncertainty Range'
-                      ? `High Ambition: ${uncertaintyUpper} - ${uncertaintyLower} Mt CO₂eq/yr`
-                      : `${entry.name}: ${entry.value} Mt CO₂eq/yr`
-                    }
-                  </p>
-                ))}
+              <div key={catIndex}>
+                <h1 className="font-semibold mt-2">{category}</h1>
+                {visibleItems.map((item, index) => {
+                  if (item.name === "Upper " && showUncertainty) {
+                    return (
+                      <p key={`${catIndex}-${index}`} style={{ color: item.color }}>
+                        {item.name}: {uncertaintyUpper} Mt CO₂eq/yr
+                      </p>
+                    );
+                  }
+                  if (item.name === "Lower Uncertainty" && showUncertainty) {
+                    return (
+                      <p key={`${catIndex}-${index}`} style={{ color: item.color }}>
+                        {item.name}: {uncertaintyLower} Mt CO₂eq/yr
+                      </p>
+                    );
+                  }
+                  return (
+                    <p key={`${catIndex}-${index}`} style={{ color: item.color }}>
+                      {item.name}: {payloadMap[item.name]} Mt CO₂eq/yr
+                    </p>
+                  );
+                })}
               </div>
             );
           })}
@@ -95,11 +83,13 @@ const App = () => {
     return null;
   };
 
+
   // Custom Dot Component
-  const CustomizedDot = (props) => {
-    const { cx, cy, fill, strokeWidth = 1 } = props;
+  const CustomizedDot = ({ cx, cy, fill, stroke, strokeWidth = 1 }) => {
+    if (cx == null || cy == null) return null;
+
     return (
-      <svg x={cx - 10} y={cy - 10} width={8} height={8} viewBox="0 0 20 20">
+      <svg x={cx - 5} y={cy - 10} width={10} height={10} viewBox="0 0 20 20">
         <path
           d="M10 0 L20 20 L0 20 Z"
           fill={fill}
@@ -123,7 +113,7 @@ const App = () => {
 
   return (
     <div
-      className="max-w-6xl mx-auto h-screen max-md:h-auto px-4"
+      className="max-w-4xl mx-auto h-screen max-md:h-auto px-4"
       onClick={handleOutsideClick}
       onTouchStart={handleOutsideClick} // For mobile touch events
     >
@@ -157,7 +147,7 @@ const App = () => {
                 />
                 <YAxis
                   label={{
-                    value: 'Emissions GHG (Mt CO₂eq/yr)',
+                    value: 'GHG Emissions (MtCO₂eq/yr)',
                     angle: -90,
                     position: 'center',
                     offset: 30,
@@ -172,16 +162,16 @@ const App = () => {
 
                 {/* Area components */}
                 <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="co2"
                   stackId="1"
                   stroke="transparent"
-                  fill="#dbdfc6"
+                  fill="#b3b89f"
                   fillOpacity={1}
                   name="CO₂ (FFI)"
                 />
                 <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="ch4"
                   stackId="1"
                   stroke="transparent"
@@ -190,7 +180,7 @@ const App = () => {
                   name="CH₄"
                 />
                 <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="n2o"
                   stackId="1"
                   stroke="transparent"
@@ -199,43 +189,35 @@ const App = () => {
                   name="N₂O"
                 />
                 <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="fGases"
                   stackId="1"
                   stroke="transparent"
-                  fill="#f8d623"
+                  fill="#e6c420"
                   fillOpacity={1}
                   name="F-Gases"
                 />
 
                 {/* Uncertainty area */}
                 <Area
-                  type="monotone"
-                  dataKey="uncertaintyUpper"
-                  stroke="none"
-                  fill="#add8e6"
-                  stackId="1"
-                  name="Uncertainty Range"
-                />
-                <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="uncertaintyLower"
                   stroke="none"
                   fill="transparent"
                   stackId="1"
                 />
-                {/* <Area
-                  type="monotone"
+                <Area
+                  type="linear"
                   dataKey={(d) => d.uncertaintyUpper - d.uncertaintyLower}
                   stroke="none"
                   fill="#add8e6"
                   stackId="1"
                   name="Uncertainty Range"
-                /> */}
+                />
 
                 {/* Line components */}
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="historical"
                   stroke="#000000"
                   strokeWidth={2}
@@ -243,7 +225,7 @@ const App = () => {
                   name="Total GHG"
                 />
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="highAmbition"
                   stroke="#99cdc2"
                   strokeWidth={2}
@@ -252,16 +234,16 @@ const App = () => {
                   name="High Ambition"
                 />
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="electricity"
                   stroke="#000000"
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   dot={false}
-                  name="Electricity"
+                  name="Electricity CO₂"
                 />
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="ndcTarget"
                   stroke="transparent"
                   dot={<CustomizedDot fill="#9370db" stroke="#000000" strokeWidth={2} />}
@@ -269,7 +251,7 @@ const App = () => {
                   name="NDC Target"
                 />
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="netZero"
                   stroke="transparent"
                   dot={<CustomizedDot fill="#ff0000" stroke="#000000" strokeWidth={2} />}
