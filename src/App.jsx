@@ -54,7 +54,7 @@ const App = () => {
               <div key={catIndex}>
                 <h1 className="font-semibold mt-2">{category}</h1>
                 {visibleItems.map((item, index) => {
-                  if (item.name === "Upper " && showUncertainty) {
+                  if (item.name === "Upper Uncertainty" && showUncertainty) {
                     return (
                       <p key={`${catIndex}-${index}`} style={{ color: item.color }}>
                         {item.name}: {uncertaintyUpper} Mt CO₂eq/yr
@@ -210,7 +210,7 @@ const App = () => {
                   type="linear"
                   dataKey={(d) => d.uncertaintyUpper - d.uncertaintyLower}
                   stroke="none"
-                  fill="#add8e6"
+                  fill="#cbede9"
                   stackId="1"
                   name="Uncertainty Range"
                 />
@@ -227,7 +227,7 @@ const App = () => {
                 <Line
                   type="linear"
                   dataKey="highAmbition"
-                  stroke="#99cdc2"
+                  stroke="#6accc2"
                   strokeWidth={2}
                   dot={false}
                   connectNulls={true}
@@ -256,7 +256,7 @@ const App = () => {
                   stroke="transparent"
                   dot={<CustomizedDot fill="#ff0000" stroke="#000000" strokeWidth={2} />}
                   activeDot={<CustomizedDot fill="#ff0000" stroke="#000000" strokeWidth={2} />}
-                  name="Net-Zero Year"
+                  name="Net-Zero Target"
                 />
               </ComposedChart>
             </ResponsiveContainer>
