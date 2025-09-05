@@ -31,52 +31,107 @@ const App = () => {
 
       const payloadMap = Object.fromEntries(validPayload.map((p) => [p.name, p.value]));
 
-      const groupedItems = LEGEND_ITEMS.reduce((acc, item) => {
-        if (!acc[item.category]) acc[item.category] = [];
-        acc[item.category].push(item);
-        return acc;
-      }, {});
+      // Build quick lookup maps for colors and values
+      const nameToLegendItem = Object.fromEntries(
+        LEGEND_ITEMS.map((it) => [it.name, it])
+      );
+
+      // Define sections and which series belong where
+      const historicalSectionNames = [
+        'Electricity CO₂',
+        'Total GHG',
+        'CO₂ (FFI)',
+        'CH₄',
+        'N₂O',
+        'F-Gases',
+      ];
+
+      const scenarioSectionNames = [
+        'High Ambition',
+        'Historical',
+        'NDC Target',
+        'Net-Zero Target',
+        'Upper Uncertainty',
+        'Lower Uncertainty',
+      ];
+
+      // Determine which sections have visible items
+      const historicalVisible = historicalSectionNames.some((name) => payloadMap[name] !== undefined);
+      const scenarioVisible = ['High Ambition', 'Historical'].some((n) => (
+        (n === 'Historical' ? payloadMap['Total GHG'] : payloadMap[n]) !== undefined
+      ));
+      const targetsVisible = ['NDC Target', 'Net-Zero Target'].some((n) => payloadMap[n] !== undefined);
+      const uncertaintyVisible = showUncertainty;
 
       return (
         <div className="bg-white p-4 border border-gray-300 rounded shadow-md max-w-xs">
           <p className="font-medium mb-2">{`Year: ${label}`}</p>
-          {Object.entries(groupedItems).map(([category, items], catIndex) => {
-            // Filter items in this category that actually have values to show
-            const visibleItems = items.filter((item) => {
-              if (item.name === "Upper Uncertainty" && showUncertainty) return true;
-              if (item.name === "Lower Uncertainty" && showUncertainty) return true;
-              return payloadMap[item.name] !== undefined;
-            });
 
-            if (visibleItems.length === 0) return null; // ⬅️ don't render empty categories
+          {/* Historical section: Variables and Gases (only if any present) */}
+          {historicalVisible && (
+            <div>
+              <h1 className="font-semibold mt-2">Historical</h1>
+              {historicalSectionNames.map((name, idx) => {
+                const legend = nameToLegendItem[name];
+                const color = legend?.color || '#000000';
+                const value = payloadMap[name];
+                if (value === undefined) return null;
+                return (
+                  <p key={`hist-${idx}`} style={{ color }}>
+                    {name}: {value} Mt CO₂eq/yr
+                  </p>
+                );
+              })}
+            </div>
+          )}
 
-            return (
-              <div key={catIndex}>
-                <h1 className="font-semibold mt-2">{category}</h1>
-                {visibleItems.map((item, index) => {
-                  if (item.name === "Upper Uncertainty" && showUncertainty) {
-                    return (
-                      <p key={`${catIndex}-${index}`} style={{ color: item.color }}>
-                        {item.name}: {uncertaintyUpper} Mt CO₂eq/yr
-                      </p>
-                    );
-                  }
-                  if (item.name === "Lower Uncertainty" && showUncertainty) {
-                    return (
-                      <p key={`${catIndex}-${index}`} style={{ color: item.color }}>
-                        {item.name}: {uncertaintyLower} Mt CO₂eq/yr
-                      </p>
-                    );
-                  }
-                  return (
-                    <p key={`${catIndex}-${index}`} style={{ color: item.color }}>
-                      {item.name}: {payloadMap[item.name]} Mt CO₂eq/yr
-                    </p>
-                  );
-                })}
-              </div>
-            );
-          })}
+          {/* Scenario main subsection */}
+          {scenarioVisible && (
+            <div>
+              <h1 className="font-semibold mt-2">Scenario</h1>
+              {['High Ambition', 'Historical'].map((name, idx) => {
+                const valueName = name === 'Historical' ? 'Total GHG' : name;
+                const value = payloadMap[valueName];
+                if (value === undefined) return null;
+                const color = nameToLegendItem[name]?.color || nameToLegendItem[valueName]?.color || '#000000';
+                return (
+                  <p key={`scen-${idx}`} style={{ color }}>
+                    {name}: {value} Mt CO₂eq/yr
+                  </p>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Targets subsection (keep subtitle as is) */}
+          {targetsVisible && (
+            <div>
+              <h1 className="font-semibold mt-2">Targets</h1>
+              {['NDC Target', 'Net-Zero Target'].map((name, idx) => {
+                const value = payloadMap[name];
+                if (value === undefined) return null;
+                const color = nameToLegendItem[name]?.color || '#000000';
+                return (
+                  <p key={`tgt-${idx}`} style={{ color }}>
+                    {name}: {value} Mt CO₂eq/yr
+                  </p>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Uncertainty subsection (keep subtitle as is) */}
+          {uncertaintyVisible && (
+            <div>
+              <h1 className="font-semibold mt-2">Uncertainty Range</h1>
+              <p style={{ color: nameToLegendItem['Upper Uncertainty']?.color || '#55a39b' }}>
+                Upper Uncertainty: {uncertaintyUpper} Mt CO₂eq/yr
+              </p>
+              <p style={{ color: nameToLegendItem['Lower Uncertainty']?.color || '#55a39b' }}>
+                Lower Uncertainty: {uncertaintyLower} Mt CO₂eq/yr
+              </p>
+            </div>
+          )}
         </div>
       );
     }

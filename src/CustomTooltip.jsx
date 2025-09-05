@@ -1,20 +1,5 @@
 import { memo } from 'react';
-
-// Centralized data configuration with tooltip property
-const LEGEND_ITEMS = [
-    { name: 'Electricity CO₂', color: '#000000', style: 'dashed', category: 'Variable', tooltip: 'CO₂ emissions from electricity production' },
-    { name: 'Total GHG', color: '#000000', style: 'line', category: 'Variable', tooltip: 'Total greenhouse gas emissions' },
-    { name: 'High Ambition', color: '#6accc2', style: 'line', category: 'Scenarios', tooltip: 'High ambition scenario for emissions reduction' },
-    { name: 'Historical', color: '#000000', style: 'line', category: 'Scenarios', tooltip: 'Historical emissions data' },
-    { name: 'NDC Target', color: '#9370db', style: 'triangle', category: 'Targets', tooltip: 'Nationally Determined Contribution target' },
-    { name: 'Net-Zero Year', color: '#ff0000', style: 'triangle', category: 'Targets', tooltip: 'Year targeted for net-zero emissions' },
-    { name: 'Uncertainty Upper', color: '#cbede9', style: 'area', category: 'Uncertainty Range', tooltip: 'Upper bound of uncertainty range' },
-    { name: 'Uncertainty Lower', color: '#cbede9', style: 'area', category: 'Uncertainty Range', tooltip: 'Lower bound of uncertainty range' },
-    { name: 'F-Gases', color: '#f8d623', style: 'area', category: 'Gases', tooltip: 'Fluorinated gases emissions' },
-    { name: 'N₂O', color: '#a05da4', style: 'area', category: 'Gases', tooltip: 'Nitrous oxide emissions' },
-    { name: 'CH₄', color: '#62b947', style: 'area', category: 'Gases', tooltip: 'Methane emissions' },
-    { name: 'CO₂ (FFI)', color: '#dbdfc6', style: 'area', category: 'Gases', tooltip: 'CO₂ from fossil fuels and industry' }
-];
+import { LEGEND_ITEMS, groupByCategory, ICON_STYLES } from './Utils';
 
 // Group items by category for rendering
 const groupByCategory = (items) =>
