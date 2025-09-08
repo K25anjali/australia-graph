@@ -73,7 +73,7 @@ const App = () => {
           {/* Historical Section */}
           {hasHistorical && (
             <>
-              <h1 className="font-bold mt-2 border-b border-b-gray-400 text-[#3185C6]">Historical</h1>
+              <h1 className="font-bold mt-2 border-b border-b-gray-400 text-[#1274A3]">Historical</h1>
               {HISTORICAL_CATEGORIES.map((category, idx) =>
                 GROUPED_LEGEND[category]
                   ? renderCategory(category, GROUPED_LEGEND[category], `hist-${idx}`)
@@ -85,7 +85,7 @@ const App = () => {
           {/* Scenario Section */}
           {hasScenario && (
             <>
-              <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300 text-[#3185C6]">Scenarios</h1>
+              <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300 text-[#1274A3]">Scenarios</h1>
               {SCENARIO_CATEGORIES.map((category, idx) =>
                 GROUPED_LEGEND[category]
                   ? renderCategory(
