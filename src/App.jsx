@@ -11,31 +11,15 @@ import {
 } from 'recharts';
 import { data } from './data';
 import CustomLegend from './CustomLegend';
-import { LEGEND_ITEMS } from './Utils';
+import { GROUPED_LEGEND, HISTORICAL_CATEGORIES, SCENARIO_CATEGORIES, toPayloadMap, getUncertaintyForYear, hasVisibleItems } from './Utils';
 const App = () => {
   const [isTooltipActive, setIsTooltipActive] = useState(false);
   const chartRef = useRef(null);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length && isTooltipActive) {
-      const validPayload = payload.filter(
-        (entry) => entry.value !== null && entry.value !== undefined
-      );
-
-      const uncertaintyLower = data.find((d) => d.year === label)?.uncertaintyLower;
-      const uncertaintyUpper = data.find((d) => d.year === label)?.uncertaintyUpper;
-      const showUncertainty =
-        label >= 2010 &&
-        uncertaintyLower !== null &&
-        uncertaintyUpper !== null;
-
-      const payloadMap = Object.fromEntries(validPayload.map((p) => [p.name, p.value]));
-
-      const groupedItems = LEGEND_ITEMS.reduce((acc, item) => {
-        if (!acc[item.category]) acc[item.category] = [];
-        acc[item.category].push(item);
-        return acc;
-      }, {});
+      const payloadMap = toPayloadMap(payload);
+      const { uncertaintyLower, uncertaintyUpper, show: showUncertainty } = getUncertaintyForYear(data, label);
 
       // Helper to render a category block with its items
       const renderCategory = (category, items, catKey, showCategoryTitle = true) => {
@@ -75,34 +59,24 @@ const App = () => {
         );
       };
 
-      // Define grouping under the two top-level headings
-      const historicalCategories = ['Variable', 'Gases'];
-      const scenarioCategories = ['Scenarios', 'Targets', 'Uncertainty Range'];
-
-      // Determine if sections have any visible items
-      const categoryHasVisible = (categoryName) => {
-        const items = groupedItems[categoryName] || [];
-        return items.some((item) => {
-          if (item.name === 'Upper Uncertainty' && showUncertainty) return true;
-          if (item.name === 'Lower Uncertainty' && showUncertainty) return true;
-          return payloadMap[item.name] !== undefined;
-        });
-      };
-
-      const hasHistorical = historicalCategories.some(categoryHasVisible);
-      const hasScenario = scenarioCategories.some(categoryHasVisible);
+      const hasHistorical = HISTORICAL_CATEGORIES.some((categoryName) =>
+        hasVisibleItems(GROUPED_LEGEND[categoryName], payloadMap, showUncertainty)
+      );
+      const hasScenario = SCENARIO_CATEGORIES.some((categoryName) =>
+        hasVisibleItems(GROUPED_LEGEND[categoryName], payloadMap, showUncertainty)
+      );
 
       return (
-        <div className="bg-white p-4 border border-gray-300 rounded shadow-md max-w-xs">
+        <div className="bg-white p-4 border border-gray-400 rounded shadow-md max-w-xs">
           <p className="font-medium mb-2">{`Year: ${label}`}</p>
 
           {/* Historical Section */}
           {hasHistorical && (
             <>
-              <h1 className="font-bold mt-2 border-b border-b-gray-300">Historical</h1>
-              {historicalCategories.map((category, idx) =>
-                groupedItems[category]
-                  ? renderCategory(category, groupedItems[category], `hist-${idx}`)
+              <h1 className="font-bold mt-2 border-b border-b-gray-400 text-[#3185C6]">Historical</h1>
+              {HISTORICAL_CATEGORIES.map((category, idx) =>
+                GROUPED_LEGEND[category]
+                  ? renderCategory(category, GROUPED_LEGEND[category], `hist-${idx}`)
                   : null
               )}
             </>
@@ -111,12 +85,12 @@ const App = () => {
           {/* Scenario Section */}
           {hasScenario && (
             <>
-              <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300">Scenarios</h1>
-              {scenarioCategories.map((category, idx) =>
-                groupedItems[category]
+              <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300 text-[#3185C6]">Scenarios</h1>
+              {SCENARIO_CATEGORIES.map((category, idx) =>
+                GROUPED_LEGEND[category]
                   ? renderCategory(
                       category,
-                      groupedItems[category],
+                      GROUPED_LEGEND[category],
                       `scen-${idx}`,
                       category !== 'Scenarios'
                     )

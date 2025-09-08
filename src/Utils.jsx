@@ -21,6 +21,38 @@ export const groupByCategory = (items) =>
         return acc;
     }, {});
 
+// Precomputed group to avoid repeating work in tooltip/legend renders
+export const GROUPED_LEGEND = groupByCategory(LEGEND_ITEMS);
+
+// Canonical category groupings used by tooltip sections
+export const HISTORICAL_CATEGORIES = ['Variable', 'Gases'];
+export const SCENARIO_CATEGORIES = ['Scenarios', 'Targets', 'Uncertainty Range'];
+
+// Build a name->value map from Recharts payload; filters null/undefined
+export const toPayloadMap = (payload) =>
+    Object.fromEntries(
+        (payload || [])
+            .filter((p) => p && p.value !== null && p.value !== undefined)
+            .map((p) => [p.name, p.value])
+    );
+
+// Get uncertainty info for a given year label
+export const getUncertaintyForYear = (data, label) => {
+    const row = (data || []).find((d) => d.year === label) || {};
+    const { uncertaintyLower = null, uncertaintyUpper = null } = row;
+    const show = label >= 2010 && uncertaintyLower !== null && uncertaintyUpper !== null;
+    return { uncertaintyLower, uncertaintyUpper, show };
+};
+
+// Check if a category has any visible items for the tooltip
+export const hasVisibleItems = (items, payloadMap, showUncertainty) =>
+    (items || []).some((item) => {
+        if (item.name === 'Upper Uncertainty' || item.name === 'Lower Uncertainty') {
+            return showUncertainty;
+        }
+        return payloadMap[item.name] !== undefined;
+    });
+
 // Constants for icon styles
 export const ICON_STYLES = {
     dashed: {
