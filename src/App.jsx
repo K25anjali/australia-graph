@@ -12,6 +12,7 @@ import {
 import { data } from './data';
 import CustomLegend from './CustomLegend';
 import { GROUPED_LEGEND, HISTORICAL_CATEGORIES, SCENARIO_CATEGORIES, toPayloadMap, getUncertaintyForYear, hasVisibleItems } from './Utils';
+
 const App = () => {
   const [isTooltipActive, setIsTooltipActive] = useState(false);
   const chartRef = useRef(null);
@@ -62,6 +63,7 @@ const App = () => {
       const hasHistorical = HISTORICAL_CATEGORIES.some((categoryName) =>
         hasVisibleItems(GROUPED_LEGEND[categoryName], payloadMap, showUncertainty)
       );
+      
       const hasScenario = SCENARIO_CATEGORIES.some((categoryName) =>
         hasVisibleItems(GROUPED_LEGEND[categoryName], payloadMap, showUncertainty)
       );
@@ -73,10 +75,15 @@ const App = () => {
           {/* Historical Section */}
           {hasHistorical && (
             <>
-              <h1 className="font-bold mt-2 border-b border-b-gray-400 text-[#1274A3]">Historical</h1>
+              <h1 className="font-bold mt-2 border-b border-b-gray-400 text-black">Historical</h1>
               {HISTORICAL_CATEGORIES.map((category, idx) =>
                 GROUPED_LEGEND[category]
-                  ? renderCategory(category, GROUPED_LEGEND[category], `hist-${idx}`)
+                  ? renderCategory(
+                      category,
+                      GROUPED_LEGEND[category],
+                      `hist-${idx}`,
+                      false
+                    )
                   : null
               )}
             </>
@@ -85,7 +92,7 @@ const App = () => {
           {/* Scenario Section */}
           {hasScenario && (
             <>
-              <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300 text-[#1274A3]">Scenarios</h1>
+              <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300 text-black">Scenarios</h1>
               {SCENARIO_CATEGORIES.map((category, idx) =>
                 GROUPED_LEGEND[category]
                   ? renderCategory(
@@ -135,14 +142,14 @@ const App = () => {
     <div
       className="max-w-4xl mx-auto h-screen max-md:h-auto px-4"
       onClick={handleOutsideClick}
-      onTouchStart={handleOutsideClick} // For mobile touch events
+      onTouchStart={handleOutsideClick}
     >
       <div className="w-full h-full py-28 flex md:flex-row flex-col">
         <div
           className="w-full md:h-full h-[50vh] max-md:overflow-x-auto"
           ref={chartRef}
-          onMouseMove={handleChartInteraction} // Show tooltip on mouse move
-          onTouchStart={handleChartInteraction} // Show tooltip on touch
+          onMouseMove={handleChartInteraction} 
+          onTouchStart={handleChartInteraction} 
         >
           <div className="w-full max-md:min-w-[500px] h-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -230,7 +237,10 @@ const App = () => {
                   type="linear"
                   dataKey={(d) => d.uncertaintyUpper - d.uncertaintyLower}
                   stroke="none"
-                  fill="#cbede9"
+                  // fill="#cbede9"
+                  // fill='#a3bdb9'
+                  // fill='#cbede9'
+                  fill='#7fcac0'
                   stackId="1"
                   name="Uncertainty Range"
                 />
