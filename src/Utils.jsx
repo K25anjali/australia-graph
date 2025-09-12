@@ -1,5 +1,5 @@
 export const LEGEND_ITEMS = [
-    { name: 'Electricity CO₂', color: '#000000', style: 'dashed', category: 'Variable' },
+    { name: 'Electricity', color: '#000000', style: 'dashed', category: 'Variable' },
     { name: 'Total GHG', color: '#000000', style: 'line', category: 'Variable' },
     { name: 'High Ambition', color: '#6accc2', style: 'line', category: 'Scenarios' },
     { name: 'Historical', color: '#000000', style: 'line', category: 'Scenarios' },

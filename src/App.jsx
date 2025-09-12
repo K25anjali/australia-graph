@@ -92,14 +92,13 @@ const App = () => {
           {/* Scenario Section */}
           {hasScenario && (
             <>
-              <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300 text-black">Scenarios</h1>
+              {/* <h1 className="font-bold mt-3 mb-2 border-b border-b-gray-300 text-black">Scenarios</h1> */}
               {SCENARIO_CATEGORIES.map((category, idx) =>
                 GROUPED_LEGEND[category]
                   ? renderCategory(
                       category,
                       GROUPED_LEGEND[category],
                       `scen-${idx}`,
-                      category !== 'Scenarios'
                     )
                   : null
               )}
@@ -237,9 +236,6 @@ const App = () => {
                   type="linear"
                   dataKey={(d) => d.uncertaintyUpper - d.uncertaintyLower}
                   stroke="none"
-                  // fill="#cbede9"
-                  // fill='#a3bdb9'
-                  // fill='#cbede9'
                   fill='#7fcac0'
                   stackId="1"
                   name="Uncertainty Range"
@@ -270,7 +266,7 @@ const App = () => {
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   dot={false}
-                  name="Electricity CO₂"
+                  name="Electricity"
                 />
                 <Line
                   type="linear"
